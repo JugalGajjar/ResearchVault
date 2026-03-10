@@ -33,8 +33,8 @@ instance/
 *.sqlite
 *.db
 
-# Flask-Migrate (keep the migrations/ directory but not compiled artefacts)
-backend/migrations/versions/*.pyc
+# Flask-Migrate (runtime-generated; run flask db init/migrate/upgrade after clone)
+backend/migrations/
 
 # ── pytest ────────────────────────────────────────────────────────────────────
 .pytest_cache/
