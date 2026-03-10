@@ -57,7 +57,7 @@ This starts four services:
 |---------|-----------|
 | PostgreSQL | `5432` |
 | OpenSearch | `9200` |
-| Flask API | **`5001`** |
+| Flask API | `5001` |
 | React frontend | `3000` |
 
 ### 2. Initialise the database
@@ -275,18 +275,7 @@ OpenSearch enables fuzzy matching, field boosting, real-time facet aggregations,
 Provides server state caching, background refetching, and loading/error states out of the box — eliminating manual state management for a data-heavy UI.
 
 **Why Flask-SQLAlchemy 3.x?**
-SQLAlchemy 2.0 style brings typed queries, eager loading improvements, and better async support. Note: `db.get_or_404(Model, id)` replaces the legacy `Model.query.get_or_404(id)` API.
-
----
-
-## Roadmap
-
-- [ ] JWT authentication with role-based access (admin / submitter / viewer)
-- [ ] OAI-PMH metadata harvesting endpoint
-- [ ] BibTeX / DataCite XML export
-- [ ] Email notifications on record state changes
-- [ ] Advanced analytics dashboard
-- [ ] OpenSearch Dashboards integration
+SQLAlchemy 2.0 style brings typed queries, eager loading improvements, and better async support.
 
 ---
 
