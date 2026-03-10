@@ -1,0 +1,77 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: researchvault_db
+    environment:
+      POSTGRES_USER: rv_user
+      POSTGRES_PASSWORD: rv_password
+      POSTGRES_DB: researchvault
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rv_user -d researchvault"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    container_name: researchvault_search
+    environment:
+      - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=ResearchVault@123
+      - plugins.security.disabled=true
+    ports:
+      - "9200:9200"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -qv '\"status\":\"red\"'"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: researchvault_backend
+    environment:
+      DATABASE_URL: postgresql://rv_user:rv_password@db:5432/researchvault
+      OPENSEARCH_URL: http://opensearch:9200
+      SECRET_KEY: super-secret-key-change-in-production
+      FLASK_ENV: development
+      UPLOAD_FOLDER: /app/uploads
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    command: flask run --host=0.0.0.0 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: researchvault_frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:5001/api
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  opensearch_data:
+  uploads_data:
